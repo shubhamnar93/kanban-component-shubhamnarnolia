@@ -15,7 +15,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   }
 
   return (
-    <div className="flex bg-green-500 gap-4 w-full overflow-x-auto p-4 flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row">
+    <div
+      className="flex flex-col gap-4 p-4
+        sm:flex-col sm:overflow-y-auto sm:pb-20
+        md:flex-row md:flex-wrap md:justify-center
+        lg:flex-nowrap lg:overflow-x-auto lg:pb-10
+        xl:mx-auto xl:max-w-[1800px] "
+    >
       {columns.map((col) => (
         <KanbanColumnComponent
           key={col.id}

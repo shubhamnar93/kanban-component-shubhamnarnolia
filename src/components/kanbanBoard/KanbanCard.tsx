@@ -1,7 +1,12 @@
 import React, { useCallback, useRef } from "react";
 import { type KanbanTask } from "./KanbanBoard.types";
 
-export const KanbanCard: React.FC<{ task: KanbanTask }> = ({ task }) => {
+export const KanbanCard: React.FC<{
+  task: KanbanTask;
+  handleDragStart: (id: string) => void;
+  handleDragEnd: () => void;
+  onDragOver: () => void;
+}> = ({ task, handleDragStart, handleDragEnd, onDragOver }) => {
   const { current: priorityColors } = useRef({
     low: "bg-green-100 text-green-800",
     medium: "bg-yellow-100 text-yellow-800",
@@ -40,6 +45,13 @@ export const KanbanCard: React.FC<{ task: KanbanTask }> = ({ task }) => {
   );
   return (
     <div
+      draggable
+      onDragStart={() => handleDragStart(task.id)}
+      onDragEnd={handleDragEnd}
+      onDragOver={(e) => {
+        e.preventDefault();
+        onDragOver();
+      }}
       className="bg-white border border-neutral-200 rounded-lg p-3 shadow-sm
 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
     >

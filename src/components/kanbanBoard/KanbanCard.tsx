@@ -1,5 +1,12 @@
-import React, { useCallback, useRef } from "react";
+import React, { useRef } from "react";
 import { type KanbanTask } from "./KanbanBoard.types";
+import {
+  isOverdue,
+  getInitials,
+  formatDate,
+  borderColor,
+} from "../../utils/task.utils";
+import { getPriorityColor } from "../../utils/task.utils";
 
 export const KanbanCard: React.FC<{
   task: KanbanTask;
@@ -7,53 +14,21 @@ export const KanbanCard: React.FC<{
   handleDragEnd: () => void;
   onDragOver: () => void;
 }> = ({ task, handleDragStart, handleDragEnd, onDragOver }) => {
-  const { current: priorityColors } = useRef({
-    low: "bg-green-100 text-green-800",
-    medium: "bg-blue-100 text-blue-800",
-    high: "bg-yellow-100 text-yellow-800",
-    urgent: "bg-red-100 text-red-800",
-  });
-  const isOverdue = useCallback(
-    (date: Date) => {
-      const dueDate = new Date(date);
-      const currentDate = new Date();
-      return dueDate < currentDate;
-    },
-    [task],
-  );
-  const formatDate = useCallback(
-    (date: Date) => {
-      const dueDate = new Date(date);
-      return dueDate.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    },
-    [task],
-  );
-  const getInitials = useCallback(
-    (name: string) => {
-      if (!name) return "";
-      const parts = name.trim().split(" ");
-      if (parts.length === 1) {
-        return (parts[0][0] + parts[0][1]).toUpperCase();
-      }
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    },
-    [task],
-  );
+  const [isDragging, setIsDragging] = React.useState(false);
   return (
     <div
       draggable
-      onDragStart={() => handleDragStart(task.id)}
+      onDragStart={() => {
+        setIsDragging(true);
+        handleDragStart(task.id);
+      }}
       onDragEnd={handleDragEnd}
       onDragOver={(e) => {
         e.preventDefault();
         onDragOver();
       }}
-      className="bg-white border border-neutral-200 rounded-lg p-3 shadow-sm
-hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2"
+      className={`bg-white border ${borderColor(task.priority || null)} ${isDragging && "shadow-2xl"} rounded-lg p-3
+      ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2`}
     >
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">
@@ -61,7 +36,7 @@ hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2"
         </h4>
         {task.priority && (
           <span
-            className={`text-xs px-2 py-0.5 rounded ${priorityColors[task.priority]}`}
+            className={`text-xs px-2 py-0.5 rounded ${getPriorityColor(task.priority)}`}
           >
             {task.priority}
           </span>
@@ -94,7 +69,7 @@ items-center justify-center"
       </div>
       {task.dueDate && (
         <div
-          className={`text-xs mt-2 ${isOverdue(task.dueDate) ? "text-red-600" : "textneutral-500"}`}
+          className={`text-xs mt-2 ${isOverdue(task.dueDate) ? "text-red-600" : "text-neutral-500"}`}
         >
           Due: {formatDate(task.dueDate)}
         </div>

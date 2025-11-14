@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import type { KanbanColumn, KanbanTask } from "./KanbanBoard.types";
 import { KanbanCard } from "./KanbanCard";
+import { handleDrop } from "../../utils/column.utils";
 
 interface Props {
   column: KanbanColumn;
@@ -37,35 +38,36 @@ export const KanbanColumnComponent: React.FC<Props> = ({
     handleDragEnd,
   } = dragState;
 
-  const handleDrop = () => {
-    // if taskId or sourceColumnId is null return
-    if (!draggedTaskId || !sourceColumnId) return;
-    // index from the drop state is null then it will be task.length otherwise it will be targetIndex which can be set using handleDragOver
-    const newIndex = targetIndex !== null ? targetIndex : tasks.length;
-    // it passed the draggedTaskId, sourceColumnId, set from handleDragStart, column id set from handleDragOver and newidex fromm above
-    handleTaskMove(draggedTaskId, sourceColumnId, column.id, newIndex);
-    setHoverIndex(null);
-  };
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const draggedTaskIndex = useRef<number | null>(null);
+  const [isOverCoulmn, setIsOverCoulmn] = useState(false);
 
   return (
     <div
       onDragOver={(e) => {
+        setIsOverCoulmn(true);
         e.preventDefault();
-        if (!(e.target as HTMLElement).closest(".task-wrapper")) {
-          // keep lasthover instead of null
-          handleDragOver(column.id, hoverIndex);
-        }
+        handleDragOver(column.id, hoverIndex);
       }}
       onDragLeave={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsOverCoulmn(false);
           setHoverIndex(null);
           handleDragOver(column.id, null);
         }
       }}
-      onDrop={handleDrop}
-      className="bg-gray-300 scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px]"
+      onDrop={() => {
+        setHoverIndex(null);
+        handleDrop({
+          draggedTaskId,
+          sourceColumnId,
+          targetIndex,
+          handleTaskMove,
+          columnId: column.id,
+          tasksLength: tasks.length,
+        });
+      }}
+      className={`bg-gray-300 ${isOverCoulmn && "border border-blue-500"} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px]`}
     >
       <header className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300">
         <h3 className="font-semibold">{column.title}</h3>
@@ -73,7 +75,7 @@ export const KanbanColumnComponent: React.FC<Props> = ({
       </header>
       <div className="flex flex-col overflow-y-auto scrollbar-thin">
         {tasks.length === 0 ? (
-          <div className="text-sm text-neutral-400 italic py-6 text-center">
+          <div className="text-sm text-black italic py-6 text-center">
             No tasks
           </div>
         ) : (
@@ -86,7 +88,17 @@ export const KanbanColumnComponent: React.FC<Props> = ({
                 setHoverIndex(index);
                 handleDragOver(column.id, index);
               }}
-              onDrop={handleDrop}
+              onDrop={() => {
+                setHoverIndex(null);
+                handleDrop({
+                  draggedTaskId,
+                  sourceColumnId,
+                  targetIndex,
+                  handleTaskMove,
+                  columnId: column.id,
+                  tasksLength: tasks.length,
+                });
+              }}
               className="task-wrapper w-full"
               style={{
                 marginTop:

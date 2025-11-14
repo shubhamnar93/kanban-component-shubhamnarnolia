@@ -22,13 +22,13 @@ export const KanbanCard: React.FC<{
         setIsDragging(true);
         handleDragStart(task.id);
       }}
-      onDragEnd={handleDragEnd}
-      onDragOver={(e) => {
-        e.preventDefault();
-        onDragOver();
+      onDragEnd={() => {
+        setIsDragging(false);
+        handleDragEnd();
       }}
       className={`bg-white border ${borderColor(task.priority || null)} ${isDragging && "shadow-2xl"} rounded-lg p-3
-      ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2`}
+      ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2 ${isDragging && "shadow-2xl scale-[1.03] rotate-2 opacity-70 z-50 "} `}
+   
     >
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { KanbanColumn, KanbanTask } from "./KanbanBoard.types";
 import { KanbanCard } from "./KanbanCard";
 
@@ -47,13 +47,22 @@ export const KanbanColumnComponent: React.FC<Props> = ({
     setHoverIndex(null);
   };
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const draggedTaskIndex = useRef<number | null>(null);
 
   return (
     <div
       onDragOver={(e) => {
         e.preventDefault();
-        if ((e.target as HTMLElement).closest(".task-wrapper")) return;
-        handleDragOver(column.id, null);
+        if (!(e.target as HTMLElement).closest(".task-wrapper")) {
+          // keep lasthover instead of null
+          handleDragOver(column.id, hoverIndex);
+        }
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setHoverIndex(null);
+          handleDragOver(column.id, null);
+        }
       }}
       onDrop={handleDrop}
       className="bg-gray-300 scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px]"
@@ -78,15 +87,30 @@ export const KanbanColumnComponent: React.FC<Props> = ({
                 handleDragOver(column.id, index);
               }}
               onDrop={handleDrop}
-              onDragLeave={() => setHoverIndex(null)}
               className="task-wrapper w-full"
               style={{
-                marginTop: hoverIndex === index ? "40px" : "0px", // feedback shift
+                marginTop:
+                  draggedTaskIndex.current &&
+                  hoverIndex &&
+                  draggedTaskIndex.current > hoverIndex &&
+                  hoverIndex === index
+                    ? "40px"
+                    : "0px", // feedback shift
+                marginBottom:
+                  draggedTaskIndex.current &&
+                  hoverIndex &&
+                  draggedTaskIndex.current < hoverIndex &&
+                  hoverIndex === index
+                    ? "40px"
+                    : "0px", // feedback shift
               }}
             >
               <KanbanCard
                 task={task}
-                handleDragStart={(id) => handleDragStart(id, column.id)}
+                handleDragStart={(id) => {
+                  draggedTaskIndex.current = index;
+                  handleDragStart(id, column.id);
+                }}
                 handleDragEnd={handleDragEnd}
                 onDragOver={() => handleDragOver(column.id, index)}
               />

@@ -9,9 +9,9 @@ export const KanbanCard: React.FC<{
 }> = ({ task, handleDragStart, handleDragEnd, onDragOver }) => {
   const { current: priorityColors } = useRef({
     low: "bg-green-100 text-green-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    high: "bg-red-100 text-red-800",
-    urgent: "bg-purple-100 text-purple-800",
+    medium: "bg-blue-100 text-blue-800",
+    high: "bg-yellow-100 text-yellow-800",
+    urgent: "bg-red-100 text-red-800",
   });
   const isOverdue = useCallback(
     (date: Date) => {
@@ -53,7 +53,7 @@ export const KanbanCard: React.FC<{
         onDragOver();
       }}
       className="bg-white border border-neutral-200 rounded-lg p-3 shadow-sm
-hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2"
     >
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">

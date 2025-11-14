@@ -1,11 +1,11 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import type { KanbanColumn, KanbanTask } from "./KanbanBoard.types";
 import { KanbanCard } from "./KanbanCard";
 
 interface Props {
   column: KanbanColumn;
   tasks: KanbanTask[];
-  onTaskMove: (
+  handleTaskMove: (
     taskId: string,
     from: string,
     to: string,
@@ -25,10 +25,9 @@ interface Props {
 export const KanbanColumnComponent: React.FC<Props> = ({
   column,
   tasks,
-  onTaskMove,
+  handleTaskMove,
   dragState,
 }) => {
-  const {current:index}=useRef(0)
   const {
     draggedTaskId,
     sourceColumnId,
@@ -39,41 +38,61 @@ export const KanbanColumnComponent: React.FC<Props> = ({
   } = dragState;
 
   const handleDrop = () => {
+    // if taskId or sourceColumnId is null return
     if (!draggedTaskId || !sourceColumnId) return;
-   const newIndex = targetIndex !== null ? targetIndex : tasks.length; 
-    onTaskMove(draggedTaskId, sourceColumnId, column.id, newIndex);
+    // index from the drop state is null then it will be task.length otherwise it will be targetIndex which can be set using handleDragOver
+    const newIndex = targetIndex !== null ? targetIndex : tasks.length;
+    // it passed the draggedTaskId, sourceColumnId, set from handleDragStart, column id set from handleDragOver and newidex fromm above
+    handleTaskMove(draggedTaskId, sourceColumnId, column.id, newIndex);
+    setHoverIndex(null);
   };
-
-  
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   return (
     <div
-    onDragOver={(e) => {
-           e.preventDefault();
-          handleDragOver(column.id, null);
-       }}
-        onDrop={handleDrop}
-     className="bg-gray-300 scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px]">
+      onDragOver={(e) => {
+        e.preventDefault();
+        if ((e.target as HTMLElement).closest(".task-wrapper")) return;
+        handleDragOver(column.id, null);
+      }}
+      onDrop={handleDrop}
+      className="bg-gray-300 scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px]"
+    >
       <header className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300">
         <h3 className="font-semibold">{column.title}</h3>
         <span className="text-sm text-neutral-500">{tasks.length}</span>
       </header>
-      <div className="flex flex-col gap-2 overflow-y-auto scrollbar-thin">
+      <div className="flex flex-col overflow-y-auto scrollbar-thin">
         {tasks.length === 0 ? (
           <div className="text-sm text-neutral-400 italic py-6 text-center">
             No tasks
           </div>
         ) : (
-        tasks.map((task, index) => (
+          tasks.map((task, index) => (
+            <div
+              key={index}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setHoverIndex(index);
+                handleDragOver(column.id, index);
+              }}
+              onDrop={handleDrop}
+              onDragLeave={() => setHoverIndex(null)}
+              className="task-wrapper w-full"
+              style={{
+                marginTop: hoverIndex === index ? "40px" : "0px", // feedback shift
+              }}
+            >
               <KanbanCard
-                key={task.id}
-               task={task}
+                task={task}
                 handleDragStart={(id) => handleDragStart(id, column.id)}
                 handleDragEnd={handleDragEnd}
                 onDragOver={() => handleDragOver(column.id, index)}
               />
-            ))
-          )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

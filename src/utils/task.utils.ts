@@ -3,6 +3,15 @@ import type {
   KanbanTask,
 } from "../components/kanbanBoard/KanbanBoard.types";
 
+interface HandleKeyDownParams {
+  e: React.KeyboardEvent;
+  handleKeyboardPickUp: (taskId: string, columnId: string) => void;
+  taskId: string;
+  columnId: string;
+  isKeyboardDragging: boolean;
+  handleKeyboardDrop: () => void;
+}
+
 /**
  * Checks if a task is overdue
  */
@@ -120,3 +129,13 @@ export const handleTaskMove = (
     dragState.handleKeyboardDrop();
   }
 };
+
+export const handleKeyDown = ({e, handleKeyboardPickUp, taskId, columnId, isKeyboardDragging, handleKeyboardDrop}: HandleKeyDownParams) => {
+    if (e.key === " ") {
+      e.preventDefault();
+      handleKeyboardPickUp(taskId, columnId);
+    } else if (e.key === "Enter" && isKeyboardDragging) {
+      e.preventDefault();
+      handleKeyboardDrop();
+    }
+  };

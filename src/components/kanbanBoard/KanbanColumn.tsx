@@ -113,6 +113,13 @@ export const KanbanColumnComponent: React.FC<Props> = ({
         <span className="text-sm text-neutral-500">{tasks.length}</span>
       </header>
       <div className="flex flex-col overflow-y-auto scrollbar-thin">
+        {(hoverIndex === 0 ||
+          (isKeyboardDragging &&
+            targetColumnId === column.id &&
+            targetIndex === 0)) &&
+          draggedTaskId && (
+            <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
+          )}
         {tasks.length === 0 ? (
           <div className="text-sm text-black italic py-6 text-center">
             No tasks
@@ -121,16 +128,24 @@ export const KanbanColumnComponent: React.FC<Props> = ({
           tasks.map((task, index) => (
             <React.Fragment key={task.id}>
               <div className="task-wrapper w-full">
-                {((hoverIndex === index &&
-                  draggedTaskId &&
-                  dragDirection === "up") ||
-                  (isKeyboardDragging &&
-                    targetColumnId === column.id &&
-                    targetIndex === index &&
+                {targetIndex !== tasks.length &&
+                  ((hoverIndex === index &&
                     draggedTaskId &&
-                    currentDraggedTaskIndex > index)) && (
-                  <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
-                )}
+                    dragDirection === "up") ||
+                    (isKeyboardDragging &&
+                      targetColumnId === sourceColumnId &&
+                      targetColumnId === column.id &&
+                      targetIndex === index &&
+                      draggedTaskId &&
+                      currentDraggedTaskIndex > index) ||
+                    (isKeyboardDragging &&
+                      targetColumnId === column.id &&
+                      targetColumnId !== sourceColumnId &&
+                      targetIndex === index - 1 &&
+                      draggedTaskId &&
+                      currentDraggedTaskIndex > index - 1)) && (
+                    <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
+                  )}
                 <KanbanCard
                   task={task}
                   handleDragStart={(id) => {
@@ -146,16 +161,24 @@ export const KanbanColumnComponent: React.FC<Props> = ({
                   isKeyboardDragging={isKeyboardDragging}
                   focusedTaskId={focusedTaskId}
                 />
-                {((hoverIndex === index &&
-                  draggedTaskId &&
-                  dragDirection === "down") ||
-                  (isKeyboardDragging &&
-                    targetColumnId === column.id &&
-                    targetIndex === index &&
+                {targetIndex !== tasks.length &&
+                  ((hoverIndex === index &&
                     draggedTaskId &&
-                    currentDraggedTaskIndex < index)) && (
-                  <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
-                )}
+                    dragDirection === "down") ||
+                    (isKeyboardDragging &&
+                      targetColumnId === sourceColumnId &&
+                      targetColumnId === column.id &&
+                      targetIndex === index &&
+                      draggedTaskId &&
+                      currentDraggedTaskIndex < index) ||
+                    (isKeyboardDragging &&
+                      targetColumnId === column.id &&
+                      targetColumnId !== sourceColumnId &&
+                      targetIndex === index + 1 &&
+                      draggedTaskId &&
+                      currentDraggedTaskIndex < index + 1)) && (
+                    <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
+                  )}
               </div>
             </React.Fragment>
           ))

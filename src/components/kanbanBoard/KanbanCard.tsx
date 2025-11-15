@@ -5,6 +5,7 @@ import {
   getInitials,
   formatDate,
   borderColor,
+  handleKeyDown,
 } from "../../utils/task.utils";
 import { getPriorityColor } from "../../utils/task.utils";
 
@@ -36,22 +37,13 @@ export const KanbanCard: React.FC<{
   const [isDragging, setIsDragging] = React.useState(false);
   const isFocused = focusedTaskId === task.id;
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === " ") {
-      e.preventDefault();
-      handleKeyboardPickUp(task.id, columnId);
-    } else if (e.key === "Enter" && isKeyboardDragging) {
-      e.preventDefault();
-      handleKeyboardDrop();
-    }
-  };
 
   return (
     <div
       tabIndex={0}
       role="button"
       aria-label={`Task: ${task.title}`}
-      onKeyDown={handleKeyDown}
+      onKeyDown={(e)=>handleKeyDown({e, handleKeyboardPickUp, taskId: task.id, columnId, isKeyboardDragging, handleKeyboardDrop})}
       draggable
       onDragStart={() => {
         setIsDragging(true);

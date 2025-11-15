@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { type KanbanTask } from "./KanbanBoard.types";
+import { type KanbanTask, type KanbanColumn } from "./KanbanBoard.types";
 import {
   isOverdue,
   getInitials,
@@ -13,10 +13,45 @@ export const KanbanCard: React.FC<{
   handleDragStart: (id: string) => void;
   handleDragEnd: () => void;
   onDragOver: () => void;
-}> = ({ task, handleDragStart, handleDragEnd, onDragOver }) => {
+  columnId: string;
+  handleKeyboardPickUp: (taskId: string, columnId: string) => void;
+  handleKeyboardMove: (
+    direction: "up" | "down" | "left" | "right",
+    columns: KanbanColumn[],
+    tasks: Record<string, KanbanTask>,
+  ) => void;
+  handleKeyboardDrop: () => void;
+  isKeyboardDragging: boolean;
+  focusedTaskId: string | null;
+}> = ({
+  task,
+  handleDragStart,
+  handleDragEnd,
+  columnId,
+  handleKeyboardPickUp,
+  handleKeyboardDrop,
+  isKeyboardDragging,
+  focusedTaskId,
+}) => {
   const [isDragging, setIsDragging] = React.useState(false);
+  const isFocused = focusedTaskId === task.id;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === " ") {
+      e.preventDefault();
+      handleKeyboardPickUp(task.id, columnId);
+    } else if (e.key === "Enter" && isKeyboardDragging) {
+      e.preventDefault();
+      handleKeyboardDrop();
+    }
+  };
+
   return (
     <div
+      tabIndex={0}
+      role="button"
+      aria-label={`Task: ${task.title}`}
+      onKeyDown={handleKeyDown}
       draggable
       onDragStart={() => {
         setIsDragging(true);
@@ -26,9 +61,8 @@ export const KanbanCard: React.FC<{
         setIsDragging(false);
         handleDragEnd();
       }}
-      className={`bg-white border ${borderColor(task.priority || null)} ${isDragging && "shadow-2xl"} rounded-lg p-3
+      className={`bg-white border ${borderColor(task.priority || null)} ${isDragging && "shadow-2xl"} ${isFocused && isKeyboardDragging && "ring-2 ring-blue-500"} rounded-lg p-3
       ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2 ${isDragging && "shadow-2xl scale-[1.03] rotate-2 opacity-70 z-50 "} `}
-   
     >
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">

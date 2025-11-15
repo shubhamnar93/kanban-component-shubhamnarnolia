@@ -83,6 +83,7 @@ export const handleTaskMove = (
   ) => void,
   dragState: {
     handleDragEnd: () => void;
+    handleKeyboardDrop?: () => void;
   },
 ) => {
   const fromCol = columns.find((c) => c.id === from)!;
@@ -115,4 +116,7 @@ export const handleTaskMove = (
   }
   onTaskMove(taskId, from, to, newIndex);
   dragState.handleDragEnd();
+  if (dragState.handleKeyboardDrop) {
+    dragState.handleKeyboardDrop();
+  }
 };

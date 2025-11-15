@@ -21,9 +21,18 @@ interface Props {
     sourceColumnId: string | null;
     targetColumnId: string | null;
     targetIndex: number | null;
+    isKeyboardDragging: boolean;
+    focusedTaskId: string | null;
     handleDragStart: (id: string, columnId: string) => void;
     handleDragOver: (columnId: string, index: number | null) => void;
     handleDragEnd: () => void;
+    handleKeyboardPickUp: (taskId: string, columnId: string) => void;
+    handleKeyboardMove: (
+      direction: "up" | "down" | "left" | "right",
+      columns: KanbanColumn[],
+      tasks: Record<string, KanbanTask>,
+    ) => void;
+    handleKeyboardDrop: () => void;
   };
 }
 
@@ -37,9 +46,15 @@ export const KanbanColumnComponent: React.FC<Props> = ({
     draggedTaskId,
     sourceColumnId,
     targetIndex,
+    targetColumnId,
+    isKeyboardDragging,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
+    handleKeyboardPickUp,
+    handleKeyboardMove,
+    handleKeyboardDrop,
+    focusedTaskId,
   } = dragState;
 
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -49,6 +64,10 @@ export const KanbanColumnComponent: React.FC<Props> = ({
     null,
   );
 
+  // Get the current index of the dragged task in this column
+  const currentDraggedTaskIndex = draggedTaskId
+    ? tasks.findIndex((t) => t.id === draggedTaskId)
+    : -1;
   return (
     <div
       onDragOver={(e) =>
@@ -87,7 +106,7 @@ export const KanbanColumnComponent: React.FC<Props> = ({
           tasksLength: tasks.length,
         })
       }
-      className={`bg-gray-300 ${isOverColumn && "border border-blue-500"} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
+      className={`bg-gray-300 ${(isOverColumn || (isKeyboardDragging && targetColumnId === column.id)) && "border border-blue-500"} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
     >
       <header className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300">
         <h3 className="font-semibold">{column.title}</h3>
@@ -102,11 +121,16 @@ export const KanbanColumnComponent: React.FC<Props> = ({
           tasks.map((task, index) => (
             <React.Fragment key={task.id}>
               <div className="task-wrapper w-full">
-                {hoverIndex === index &&
+                {((hoverIndex === index &&
                   draggedTaskId &&
-                  dragDirection === "up" && (
-                    <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
-                  )}
+                  dragDirection === "up") ||
+                  (isKeyboardDragging &&
+                    targetColumnId === column.id &&
+                    targetIndex === index &&
+                    draggedTaskId &&
+                    currentDraggedTaskIndex > index)) && (
+                  <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
+                )}
                 <KanbanCard
                   task={task}
                   handleDragStart={(id) => {
@@ -115,19 +139,34 @@ export const KanbanColumnComponent: React.FC<Props> = ({
                   }}
                   handleDragEnd={handleDragEnd}
                   onDragOver={() => {}}
+                  columnId={column.id}
+                  handleKeyboardPickUp={handleKeyboardPickUp}
+                  handleKeyboardMove={handleKeyboardMove}
+                  handleKeyboardDrop={handleKeyboardDrop}
+                  isKeyboardDragging={isKeyboardDragging}
+                  focusedTaskId={focusedTaskId}
                 />
-                {hoverIndex === index &&
+                {((hoverIndex === index &&
                   draggedTaskId &&
-                  dragDirection === "down" && (
-                    <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
-                  )}
+                  dragDirection === "down") ||
+                  (isKeyboardDragging &&
+                    targetColumnId === column.id &&
+                    targetIndex === index &&
+                    draggedTaskId &&
+                    currentDraggedTaskIndex < index)) && (
+                  <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
+                )}
               </div>
             </React.Fragment>
           ))
         )}
-        {hoverIndex === tasks.length && draggedTaskId && (
-          <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
-        )}
+        {(hoverIndex === tasks.length ||
+          (isKeyboardDragging &&
+            targetColumnId === column.id &&
+            targetIndex === tasks.length)) &&
+          draggedTaskId && (
+            <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
+          )}
       </div>
     </div>
   );

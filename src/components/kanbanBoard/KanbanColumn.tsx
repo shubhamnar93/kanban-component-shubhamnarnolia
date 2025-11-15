@@ -6,6 +6,7 @@ import {
   handleDragOverColumn,
   handleDropColumn,
 } from "../../utils/column.utils";
+import { Button } from "../primitives/Button";
 
 interface Props {
   column: KanbanColumn;
@@ -34,14 +35,20 @@ interface Props {
     ) => void;
     handleKeyboardDrop: () => void;
   };
+  setShowAddModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setAddNewOrEdit: React.Dispatch<React.SetStateAction<"add" | "edit">>;
+  setTaskToEdit: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const KanbanColumnComponent: React.FC<Props> = ({
+export const KanbanColumnComponent = ({
   column,
   tasks,
   handleTaskMove,
   dragState,
-}) => {
+  setShowAddModal,
+  setAddNewOrEdit,
+  setTaskToEdit,
+}: Props) => {
   const {
     draggedTaskId,
     sourceColumnId,
@@ -52,7 +59,6 @@ export const KanbanColumnComponent: React.FC<Props> = ({
     handleDragOver,
     handleDragEnd,
     handleKeyboardPickUp,
-    handleKeyboardMove,
     handleKeyboardDrop,
     focusedTaskId,
   } = dragState;
@@ -63,6 +69,13 @@ export const KanbanColumnComponent: React.FC<Props> = ({
   const [dragDirection, setDragDirection] = useState<"up" | "down" | null>(
     null,
   );
+  const [isExpand, setIsExpand] = useState(true);
+  function handleEdit(taskId: string) {
+    // Placeholder function for editing a task
+    setShowAddModal(true);
+    setAddNewOrEdit("edit");
+    setTaskToEdit(taskId);
+  }
 
   // Get the current index of the dragged task in this column
   const currentDraggedTaskIndex = draggedTaskId
@@ -108,7 +121,10 @@ export const KanbanColumnComponent: React.FC<Props> = ({
       }
       className={`bg-gray-300 ${(isOverColumn || (isKeyboardDragging && targetColumnId === column.id)) && "border border-blue-500"} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
     >
-      <header className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300">
+      <header
+        onClick={() => setIsExpand((prev) => !prev)}
+        className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300"
+      >
         <h3 className="font-semibold">{column.title}</h3>
         <span className="text-sm text-neutral-500">{tasks.length}</span>
       </header>
@@ -120,7 +136,10 @@ export const KanbanColumnComponent: React.FC<Props> = ({
           draggedTaskId && (
             <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
           )}
-        {tasks.length === 0 ? (
+
+        {!isExpand ? (
+          <div></div>
+        ) : tasks.length === 0 ? (
           <div className="text-sm text-black italic py-6 text-center">
             No tasks
           </div>
@@ -153,13 +172,12 @@ export const KanbanColumnComponent: React.FC<Props> = ({
                     handleDragStart(id, column.id);
                   }}
                   handleDragEnd={handleDragEnd}
-                  onDragOver={() => {}}
                   columnId={column.id}
                   handleKeyboardPickUp={handleKeyboardPickUp}
-                  handleKeyboardMove={handleKeyboardMove}
                   handleKeyboardDrop={handleKeyboardDrop}
                   isKeyboardDragging={isKeyboardDragging}
                   focusedTaskId={focusedTaskId}
+                  handleEdit={handleEdit}
                 />
                 {targetIndex !== tasks.length &&
                   ((hoverIndex === index &&
@@ -191,6 +209,16 @@ export const KanbanColumnComponent: React.FC<Props> = ({
             <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
           )}
       </div>
+      <Button
+        onClick={() => {
+          setAddNewOrEdit("add");
+          setShowAddModal(true)}}
+        variant="ghost"
+        className="w-full mt-3 text-xs sm:text-sm border border-gray-200 hover:border-gray-300"
+        ariaLabel={`Add task to ${column.title} column`}
+      >
+        + Add Task
+      </Button>
     </div>
   );
 };

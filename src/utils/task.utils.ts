@@ -130,6 +130,9 @@ export const handleTaskMove = (
   }
 };
 
+/**
+ * Pick the task and drop using keyboard
+*/
 export const handleKeyDown = ({e, handleKeyboardPickUp, taskId, columnId, isKeyboardDragging, handleKeyboardDrop}: HandleKeyDownParams) => {
     if (e.key === " ") {
       e.preventDefault();
@@ -139,3 +142,10 @@ export const handleKeyDown = ({e, handleKeyboardPickUp, taskId, columnId, isKeyb
       handleKeyboardDrop();
     }
   };
+/**
+ * Pick the task and drop using keyboard
+*/
+export const handleDelete=(taskId:string)=>{}
+export const handleSaveNew=(formData:Partial<KanbanTask>)=>{}
+export const handleUpdate=(taskId:string, formData:Partial<KanbanTask>)=>{}
+

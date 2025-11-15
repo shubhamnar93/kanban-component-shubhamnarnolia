@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { type KanbanTask, type KanbanColumn } from "./KanbanBoard.types";
+import { type KanbanTask } from "./KanbanBoard.types";
 import {
   isOverdue,
   getInitials,
@@ -9,22 +9,19 @@ import {
 } from "../../utils/task.utils";
 import { getPriorityColor } from "../../utils/task.utils";
 
-export const KanbanCard: React.FC<{
+interface Props {
   task: KanbanTask;
   handleDragStart: (id: string) => void;
   handleDragEnd: () => void;
-  onDragOver: () => void;
   columnId: string;
   handleKeyboardPickUp: (taskId: string, columnId: string) => void;
-  handleKeyboardMove: (
-    direction: "up" | "down" | "left" | "right",
-    columns: KanbanColumn[],
-    tasks: Record<string, KanbanTask>,
-  ) => void;
   handleKeyboardDrop: () => void;
   isKeyboardDragging: boolean;
   focusedTaskId: string | null;
-}> = ({
+  handleEdit: (taskId: string) => void;
+}
+
+export const KanbanCard = ({
   task,
   handleDragStart,
   handleDragEnd,
@@ -33,17 +30,26 @@ export const KanbanCard: React.FC<{
   handleKeyboardDrop,
   isKeyboardDragging,
   focusedTaskId,
-}) => {
+  handleEdit,
+}: Props) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const isFocused = focusedTaskId === task.id;
-
 
   return (
     <div
       tabIndex={0}
       role="button"
       aria-label={`Task: ${task.title}`}
-      onKeyDown={(e)=>handleKeyDown({e, handleKeyboardPickUp, taskId: task.id, columnId, isKeyboardDragging, handleKeyboardDrop})}
+      onKeyDown={(e) =>
+        handleKeyDown({
+          e,
+          handleKeyboardPickUp,
+          taskId: task.id,
+          columnId,
+          isKeyboardDragging,
+          handleKeyboardDrop,
+        })
+      }
       draggable
       onDragStart={() => {
         setIsDragging(true);
@@ -53,20 +59,30 @@ export const KanbanCard: React.FC<{
         setIsDragging(false);
         handleDragEnd();
       }}
-      className={`bg-white border ${borderColor(task.priority || null)} ${isDragging && "shadow-2xl"} ${isFocused && isKeyboardDragging && "ring-2 ring-blue-500"} rounded-lg p-3
-      ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2 ${isDragging && "shadow-2xl scale-[1.03] rotate-2 opacity-70 z-50 "} `}
+      className={`relative group bg-white border ${borderColor(
+        task.priority || null,
+      )} ${isDragging && "shadow-2xl"} ${
+        isFocused && isKeyboardDragging && "ring-2 ring-blue-500"
+      } rounded-lg p-3
+      ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2 ${
+        isDragging && "shadow-2xl scale-[1.03] rotate-2 opacity-70 z-50 "
+      }`}
     >
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">
           {task.title}
         </h4>
-        {task.priority && (
-          <span
-            className={`text-xs px-2 py-0.5 rounded ${getPriorityColor(task.priority)}`}
-          >
-            {task.priority}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {task.priority && (
+            <span
+              className={`text-xs px-2 py-0.5 rounded ${getPriorityColor(
+                task.priority,
+              )}`}
+            >
+              {task.priority}
+            </span>
+          )}
+        </div>
       </div>
       {task.description && (
         <p className="text-xs text-neutral-600 mb-2 line-clamp-2">
@@ -95,11 +111,21 @@ items-center justify-center"
       </div>
       {task.dueDate && (
         <div
-          className={`text-xs mt-2 ${isOverdue(task.dueDate) ? "text-red-600" : "text-neutral-500"}`}
+          className={`text-xs mt-2 ${
+            isOverdue(task.dueDate) ? "text-red-600" : "text-neutral-500"
+          }`}
         >
           Due: {formatDate(task.dueDate)}
         </div>
       )}
+      <button
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={() => handleEdit(task.id)}
+        aria-label={`Edit ${task.title}`}
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full bg-white/80 hover:bg-white"
+      >
+        ✏️
+      </button>
     </div>
   );
 };

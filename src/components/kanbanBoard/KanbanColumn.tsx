@@ -87,6 +87,12 @@ export const KanbanColumnComponent = ({
   const [isExpand, setIsExpand] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
 
+  // WIP visual warning
+  const maxTasks = column.maxTasks ?? null;
+  const warnThreshold = maxTasks ? Math.ceil(maxTasks * 0.8) : null; // 80%
+  const isApproachingWip = maxTasks ? tasks.length >= (warnThreshold ?? Infinity) && tasks.length < maxTasks : false;
+  const isAtOrOverWip = maxTasks ? tasks.length >= maxTasks : false;
+
   function handleEdit(taskId: string) {
     setColumnId(column.id);
     setShowAddModal(true);
@@ -136,61 +142,85 @@ export const KanbanColumnComponent = ({
           tasksLength: tasks.length,
         })
       }
-      className={`bg-gray-300 ${(isOverColumn || (isKeyboardDragging && targetColumnId === column.id)) && "border border-blue-500"} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
+      className={`bg-gray-300 ${
+        (isOverColumn || (isKeyboardDragging && targetColumnId === column.id))
+          ? "border border-blue-500"
+          : ""
+      } ${isApproachingWip ? "border-2 border-amber-300" : ""} ${isAtOrOverWip ? "ring-2 ring-red-400" : ""} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
     >
       <header
         onClick={() => setIsExpand((prev) => !prev)}
         className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300"
       >
         <h3 className="font-semibold">{column.title}</h3>
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowMenu((prev) => !prev);
-            }}
-            className="p-1 rounded hover:bg-gray-200"
-          >
-            ⋯
-          </button>
-
-          {showMenu && (
-            <div
-              className="absolute right-0 mt-2 w-40 bg-white rounded shadow-md border z-50"
-              onClick={(e) => e.stopPropagation()}
+        <div className="flex items-center gap-2">
+          {/* WIP pill (shows only when maxTasks is set) */}
+          {maxTasks ? (
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                isAtOrOverWip
+                  ? "bg-red-100 text-red-700"
+                  : isApproachingWip
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-neutral-100 text-neutral-700"
+              }`}
+              title={isAtOrOverWip ? "WIP limit reached" : isApproachingWip ? "Approaching WIP limit" : "WIP"}
             >
-              <button
-                onClick={() => {
-                  setColToEdit(column.id);
-                  setShowColModal("rename");
-                }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
-              >
-                Rename Column
-              </button>
-              <button
-                onClick={() => setIsExpand((prev) => !prev)}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
-              >
-                {!isExpand ? "Expand Column" : "Collapse Column"}
-              </button>
-              <button
-                onClick={() => {
-                  setColToEdit(column.id);
-                  setShowColModal("wiplimit");
-                }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
-              >
-                Set WIP Limit
-              </button>
-              <button
-                onClick={() => onDeleteCol(column.id)}
-                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-              >
-                Delete Column
-              </button>
-            </div>
+              {tasks.length}/{maxTasks}
+            </span>
+          ) : (
+            <span className="text-sm text-neutral-500">{tasks.length}</span>
           )}
+
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu((prev) => !prev);
+              }}
+              className="p-1 rounded hover:bg-gray-200"
+            >
+              ⋯
+            </button>
+
+            {showMenu && (
+              <div
+                className="absolute right-0 mt-2 w-40 bg-white rounded shadow-md border z-50"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => {
+                    setColToEdit(column.id);
+                    setShowColModal("rename");
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                >
+                  Rename Column
+                </button>
+                <button
+                  onClick={() => setIsExpand((prev) => !prev)}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                >
+                  {!isExpand ? "Expand Column" : "Collapse Column"}
+                </button>
+                <button
+                  onClick={() => {
+                    setColToEdit(column.id);
+                    setShowColModal("wiplimit");
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                >
+                  Set WIP Limit
+                </button>
+                <button
+                  onClick={() => onDeleteCol(column.id)}
+                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  Delete Column
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
       <div className="flex flex-col overflow-y-auto scrollbar-thin">

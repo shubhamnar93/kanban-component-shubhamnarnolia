@@ -106,6 +106,7 @@ export const KanbanBoard = ({
       <div className="flex flex-col gap-2 justify-between md:flex-row mb-3">
         <div className="flex gap-2">
           <select
+            aria-label="Filter by assignee"
             value={filterAssignee ?? ""}
             onChange={(e) => setFilterAssignee(e.target.value || null)}
             className="px-2 py-1 border rounded"
@@ -124,6 +125,7 @@ export const KanbanBoard = ({
             ))}
           </select>
           <select
+            aria-label="Filter by tag"
             value={filterTag ?? ""}
             onChange={(e) => setFilterTag(e.target.value || null)}
             className="px-2 py-1 border rounded"
@@ -138,6 +140,7 @@ export const KanbanBoard = ({
             ))}
           </select>
           <select
+            aria-label="Filter by priority"
             value={filterPriority ?? ""}
             onChange={(e) => setFilterPriority(e.target.value || null)}
             className="px-2 py-1 border rounded"
@@ -180,7 +183,7 @@ export const KanbanBoard = ({
         }
         className={`flex flex-col gap-4 p-4
         sm:flex-col sm:overflow-y-auto sm:pb-20
-        md:flex-row md:flex-wrap md:justify-center
+        md:flex-row md:flex-wrap
         lg:flex-nowrap lg:overflow-x-auto lg:pb-10
         xl:mx-auto xl:max-w-[1800px] ${showAddModal && "hidden"}`}
       >

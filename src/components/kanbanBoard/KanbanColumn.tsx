@@ -154,7 +154,8 @@ export const KanbanColumnComponent = ({
           : ""
       } ${isApproachingWip ? "border-2 border-amber-300" : ""} ${isAtOrOverWip ? "ring-2 ring-red-400" : ""} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[400px] sm:w-full md:w-[280px] lg:max-h-[723px] lg:w-[320px] h-fit`}
     >
-      <header
+      <div
+        title={`${column.title}-${column.id}`}
         onClick={() => setIsExpand((prev) => !prev)}
         className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300"
       >
@@ -180,7 +181,7 @@ export const KanbanColumnComponent = ({
               {tasks.length}/{maxTasks}
             </span>
           ) : (
-            <span className="text-sm text-neutral-500">{tasks.length}</span>
+            <span className="text-sm text-neutral-1000">{tasks.length}</span>
           )}
 
           <div className="relative">
@@ -233,7 +234,7 @@ export const KanbanColumnComponent = ({
             )}
           </div>
         </div>
-      </header>
+      </div>
       <div className="flex flex-col overflow-y-auto scrollbar-thin">
         {(hoverIndex === 0 ||
           (isKeyboardDragging &&

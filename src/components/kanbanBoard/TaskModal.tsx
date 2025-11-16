@@ -104,6 +104,7 @@ export const TaskModal = ({
                 Priority
               </label>
               <select
+              aria-label="Select task priority"
                 value={formData.priority || ""}
                 onChange={(e) =>
                   setFormData({

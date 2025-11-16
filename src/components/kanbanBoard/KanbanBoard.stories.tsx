@@ -1,4 +1,5 @@
 import { KanbanBoard } from "./KanbanBoard";
+
 import { type KanbanColumn, type KanbanTask } from "./KanbanBoard.types";
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -36,8 +37,13 @@ const columns: KanbanColumn[] = [
       "16",
     ],
   },
-  { id: "5", title: "In Progress", color: "bg-yellow-500", taskIds: [] },
-  { id: "6", title: "Done", color: "bg-green-500", taskIds: [] },
+  {
+    id: "5",
+    title: "In Progress",
+    color: "bg-yellow-500",
+    taskIds: ["22", "24"],
+  },
+  { id: "6", title: "Done", color: "bg-green-500", taskIds: ["23"] },
 ];
 
 const tasks: Record<string, KanbanTask> = {
@@ -206,6 +212,34 @@ const tasks: Record<string, KanbanTask> = {
     priority: "urgent",
     dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
   },
+  "21": {
+    id: "21",
+    title: "Task 21",
+    status: "Backlog",
+    createdAt: new Date(),
+    priority: "low",
+  },
+  "22": {
+    id: "22",
+    title: "Task 22",
+    status: "Backlog",
+    createdAt: new Date(),
+    priority: "medium",
+  },
+  "23": {
+    id: "23",
+    title: "Task 23",
+    status: "Backlog",
+    createdAt: new Date(),
+    priority: "high",
+  },
+  "24": {
+    id: "24",
+    title: "Task 24",
+    status: "Backlog",
+    createdAt: new Date(),
+    priority: "urgent",
+  },
 };
 
 type Story = StoryObj<typeof KanbanBoard>;
@@ -221,10 +255,21 @@ export const Default: Story = {
   },
 };
 
-export const EmptyBoard: Story = {
+const ManyTask: KanbanColumn[] = [
+  {
+    id: "many-1",
+    title: "Backlog (Many)",
+    color: "bg-blue-500",
+    taskIds: Array.from({ length: 24 }, (_, i) => String(i + 1)),
+  },
+  { id: "many-2", title: "In Progress", color: "bg-yellow-500", taskIds: [] },
+  { id: "many-3", title: "Done", color: "bg-green-500", taskIds: [] },
+];
+
+export const WithManyTasks: Story = {
   args: {
-    columns: [],
-    tasks: {},
+    columns: ManyTask,
+    tasks,
     onTaskMove: () => {},
     onTaskCreate: () => {},
     onTaskUpdate: () => {},
@@ -232,10 +277,39 @@ export const EmptyBoard: Story = {
   },
 };
 
-export const EmptySingleColumn: Story = {
+export const MobileView: Story = {
   args: {
-    columns: [{ id: "1", title: "To Do", color: "bg-blue-500", taskIds: [] }],
+    columns,
     tasks,
+    onTaskMove: () => {},
+    onTaskCreate: () => {},
+    onTaskUpdate: () => {},
+    onTaskDelete: () => {},
+  },
+  globals: {
+    viewport: { value: "mobile2", isRotated: false },
+  },
+};
+
+export const EmptyColumns: Story = {
+  args: {
+    columns: [
+      { id: "1", title: "To Do", color: "bg-blue-500", taskIds: [] },
+      { id: "2", title: "Done", color: "bg-green-500", taskIds: [] },
+      { id: "3", title: "In Progress", color: "bg-yellow-500", taskIds: [] },
+    ],
+    tasks,
+    onTaskMove: () => {},
+    onTaskCreate: () => {},
+    onTaskUpdate: () => {},
+    onTaskDelete: () => {},
+  },
+};
+
+export const LessThan3ColThisWillGiveError: Story = {
+  args: {
+    columns: [],
+    tasks: {},
     onTaskMove: () => {},
     onTaskCreate: () => {},
     onTaskUpdate: () => {},

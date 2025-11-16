@@ -1,3 +1,5 @@
+import type { KanbanColumn } from "../components/kanbanBoard/KanbanBoard.types";
+
 // Shared helpers
 type MoveTaskFn = (
   taskId: string,
@@ -48,11 +50,21 @@ export interface HandleDragOverColumnParams extends ColumnInteractionBase {
 export interface HandleWipLimitParams {
   limit: number;
   columnId: string | null;
+  columns: KanbanColumn[];
+  setColumns: React.Dispatch<React.SetStateAction<KanbanColumn[]>>;
 }
 
 export interface HandleColRenameParams {
   colName: string;
   columnId: string | null;
+  columns: KanbanColumn[];
+  setColumns: React.Dispatch<React.SetStateAction<KanbanColumn[]>>;
+}
+
+export interface HandleDeleteProps {
+  columnId: string | null;
+  columns: KanbanColumn[];
+  setColumns: React.Dispatch<React.SetStateAction<KanbanColumn[]>>;
 }
 export const handleDragOverColumn = ({
   e,
@@ -122,10 +134,41 @@ export const handleDropColumn = ({
   handleTaskMove(draggedTaskId, sourceColumnId, columnId, newIndex);
 };
 
-export const handleWipLimit = ({ limit, columnId }: HandleWipLimitParams) => {};
+export const handleWipLimit = ({ limit, columnId, columns, setColumns}: HandleWipLimitParams) => {
+  const col= columns.find((c) => c.id === columnId)!;
+  col.maxTasks = limit;
+  const updatedCols = columns.map((c) => {
+    if (c.id === columnId) {
+      return col;
+    } else {
+      return c;
+    }
+  });
+  setColumns(updatedCols);
+};
 export const handleColRename = ({
   colName,
   columnId,
-}: HandleColRenameParams) => {};
-export const handleColDelete = (columnId: string) => {};
+  columns,
+  setColumns
+}: HandleColRenameParams) => {
+  const col= columns.find((c) => c.id === columnId)!;
+  col.title = colName;
+  const updatedCols = columns.map((c) => {
+    if (c.id === columnId) {
+      return col;
+    } else {
+      return c;
+    }
+  });
+  setColumns(updatedCols);
+};
+export const handleColDelete = ({
+  columnId,
+  columns,
+  setColumns
+}: HandleDeleteProps) => {
+  const updatedCols = columns.filter((c) => c.id !== columnId);
+  setColumns(updatedCols);
+};
 

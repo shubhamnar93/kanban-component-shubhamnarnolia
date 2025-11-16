@@ -44,6 +44,7 @@ interface Props {
     React.SetStateAction<"rename" | "wiplimit" | null>
   >;
   setColToEdit: React.Dispatch<React.SetStateAction<string | null>>;
+  onDeleteCol: (colId: string) => void;
 }
 
 export const KanbanColumnComponent = ({
@@ -57,6 +58,7 @@ export const KanbanColumnComponent = ({
   setColumnId,
   setShowColModal,
   setColToEdit,
+  onDeleteCol,
 }: Props) => {
   const {
     draggedTaskId,
@@ -178,7 +180,7 @@ export const KanbanColumnComponent = ({
                 Set WIP Limit
               </button>
               <button
-                onClick={() => handleColDelete(column.id)}
+                onClick={() => onDeleteCol(column.id)}
                 className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
               >
                 Delete Column

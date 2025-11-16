@@ -9,7 +9,11 @@ import { TaskModal } from "./TaskModal";
 import { handleDelete } from "../../utils/task.utils";
 import { handleSaveNew } from "../../utils/task.utils";
 import { Modal } from "../primitives/Modal";
-import { handleColRename, handleWipLimit } from "../../utils/column.utils";
+import {
+  handleColDelete,
+  handleColRename,
+  handleWipLimit,
+} from "../../utils/column.utils";
 
 export const KanbanBoard = ({
   columns: initialColumns,
@@ -87,6 +91,13 @@ export const KanbanBoard = ({
             setColumnId={setColumnId}
             setShowColModal={setShowColModal}
             setColToEdit={setColumnToEdit}
+            onDeleteCol={(colId: string) => {
+              handleColDelete({
+                columnId: colId,
+                columns,
+                setColumns,
+              });
+            }}
           />
         ))}
       </div>
@@ -136,9 +147,16 @@ export const KanbanBoard = ({
       {showColModal !== null && (
         <Modal
           showColModal={showColModal}
-          onWipLimit={(limit) => handleWipLimit({ limit, columnId: colToEdit })}
+          onWipLimit={(limit) =>
+            handleWipLimit({ limit, columnId: colToEdit, columns, setColumns })
+          }
           onRename={(colName) =>
-            handleColRename({ colName, columnId: colToEdit })
+            handleColRename({
+              colName,
+              columnId: colToEdit,
+              columns,
+              setColumns,
+            })
           }
           onClose={() => setShowColModal(null)}
         />

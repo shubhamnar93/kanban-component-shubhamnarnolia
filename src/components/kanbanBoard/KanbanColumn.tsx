@@ -45,6 +45,8 @@ interface Props {
   >;
   setColToEdit: React.Dispatch<React.SetStateAction<string | null>>;
   onDeleteCol: (colId: string) => void;
+  handleTaskDelete: (taskId: string, columnId: string) => void;
+  handleDuplicate: (taskId: string, columnId: string) => void;
 }
 
 export const KanbanColumnComponent = ({
@@ -59,6 +61,8 @@ export const KanbanColumnComponent = ({
   setShowColModal,
   setColToEdit,
   onDeleteCol,
+  handleTaskDelete,
+  handleDuplicate,
 }: Props) => {
   const {
     draggedTaskId,
@@ -239,6 +243,8 @@ export const KanbanColumnComponent = ({
                   isKeyboardDragging={isKeyboardDragging}
                   focusedTaskId={focusedTaskId}
                   handleEdit={handleEdit}
+                  handleDelete={() => handleTaskDelete(task.id, column.id)}
+                  handleDuplicate={() => handleDuplicate(task.id, column.id)}
                 />
                 {targetIndex !== tasks.length &&
                   ((hoverIndex === index &&

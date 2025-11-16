@@ -14,6 +14,7 @@ import {
   handleColRename,
   handleWipLimit,
 } from "../../utils/column.utils";
+import { v4 as uuidv4 } from "uuid";
 
 export const KanbanBoard = ({
   columns: initialColumns,
@@ -37,6 +38,22 @@ export const KanbanBoard = ({
 
   if (columns.length < 3 || columns.length > 6) {
     throw new Error("`items` must contain between 3 and 6 elements.");
+  }
+
+  function handleTaskDelete(taskId: string, columnId: string) {
+    handleDelete(taskId, columnId, columns, setColumns, tasks, setTasks);
+  }
+
+  function handleDuplicate(taskId: string, columnId: string) {
+    const taskToDuplicate = tasks[taskId];
+    if (taskToDuplicate) {
+      const newTask: KanbanTask = {
+        ...taskToDuplicate,
+        id: uuidv4(),
+        title: `${taskToDuplicate.title} (Copy)`,
+      };
+      handleSaveNew(newTask, columnId, columns, setColumns, tasks, setTasks);
+    }
   }
 
   return (
@@ -98,6 +115,8 @@ export const KanbanBoard = ({
                 setColumns,
               });
             }}
+            handleTaskDelete={handleTaskDelete}
+            handleDuplicate={handleDuplicate}
           />
         ))}
       </div>

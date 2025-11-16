@@ -19,6 +19,8 @@ interface Props {
   isKeyboardDragging: boolean;
   focusedTaskId: string | null;
   handleEdit: (taskId: string) => void;
+  handleDelete: (taskId: string) => void;
+  handleDuplicate: (taskId: string) => void;
 }
 
 export const KanbanCard = ({
@@ -31,6 +33,8 @@ export const KanbanCard = ({
   isKeyboardDragging,
   focusedTaskId,
   handleEdit,
+  handleDelete,
+  handleDuplicate,
 }: Props) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const isFocused = focusedTaskId === task.id;
@@ -118,16 +122,34 @@ items-center justify-center"
           Due: {formatDate(task.dueDate)}
         </div>
       )}
-      <button
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={() => {
-          handleEdit(task.id);
-        }}
-        aria-label={`Edit ${task.title}`}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full bg-white/80 hover:bg-white"
-      >
-        ✏️
-      </button>
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex gap-1">
+        <button
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={() =>handleEdit(task.id)}
+          aria-label={`Edit ${task.title}`}
+          className="p-1 rounded-full bg-white/80 hover:bg-white text-sm shadow-sm"
+        >
+          ✏️
+        </button>
+
+        <button
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={() => handleDuplicate(task.id)}
+          aria-label={`Duplicate ${task.title}`}
+          className="p-1 rounded-full bg-white/80 hover:bg-white text-sm shadow-sm"
+        >
+          📄
+        </button>
+
+        <button
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={() => handleDelete(task.id)}
+          aria-label={`Delete ${task.title}`}
+          className="p-1 rounded-full bg-white/80 hover:bg-white text-sm shadow-sm text-red-600"
+        >
+          🗑️
+        </button>
+      </div>
     </div>
   );
 };

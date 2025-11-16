@@ -47,6 +47,8 @@ interface Props {
   onDeleteCol: (colId: string) => void;
   handleTaskDelete: (taskId: string, columnId: string) => void;
   handleDuplicate: (taskId: string, columnId: string) => void;
+  selectedTaskIds: Record<string, boolean>;
+  toggleSelect: (taskId: string, checked: boolean) => void;
 }
 
 export const KanbanColumnComponent = ({
@@ -63,6 +65,8 @@ export const KanbanColumnComponent = ({
   onDeleteCol,
   handleTaskDelete,
   handleDuplicate,
+  selectedTaskIds,
+  toggleSelect,
 }: Props) => {
   const {
     draggedTaskId,
@@ -90,7 +94,9 @@ export const KanbanColumnComponent = ({
   // WIP visual warning
   const maxTasks = column.maxTasks ?? null;
   const warnThreshold = maxTasks ? Math.ceil(maxTasks * 0.8) : null; // 80%
-  const isApproachingWip = maxTasks ? tasks.length >= (warnThreshold ?? Infinity) && tasks.length < maxTasks : false;
+  const isApproachingWip = maxTasks
+    ? tasks.length >= (warnThreshold ?? Infinity) && tasks.length < maxTasks
+    : false;
   const isAtOrOverWip = maxTasks ? tasks.length >= maxTasks : false;
 
   function handleEdit(taskId: string) {
@@ -143,7 +149,7 @@ export const KanbanColumnComponent = ({
         })
       }
       className={`bg-gray-300 ${
-        (isOverColumn || (isKeyboardDragging && targetColumnId === column.id))
+        isOverColumn || (isKeyboardDragging && targetColumnId === column.id)
           ? "border border-blue-500"
           : ""
       } ${isApproachingWip ? "border-2 border-amber-300" : ""} ${isAtOrOverWip ? "ring-2 ring-red-400" : ""} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
@@ -154,17 +160,22 @@ export const KanbanColumnComponent = ({
       >
         <h3 className="font-semibold">{column.title}</h3>
         <div className="flex items-center gap-2">
-          {/* WIP pill (shows only when maxTasks is set) */}
           {maxTasks ? (
             <span
               className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                 isAtOrOverWip
                   ? "bg-red-100 text-red-700"
                   : isApproachingWip
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-neutral-100 text-neutral-700"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-neutral-100 text-neutral-700"
               }`}
-              title={isAtOrOverWip ? "WIP limit reached" : isApproachingWip ? "Approaching WIP limit" : "WIP"}
+              title={
+                isAtOrOverWip
+                  ? "WIP limit reached"
+                  : isApproachingWip
+                    ? "Approaching WIP limit"
+                    : "WIP"
+              }
             >
               {tasks.length}/{maxTasks}
             </span>
@@ -275,6 +286,10 @@ export const KanbanColumnComponent = ({
                   handleEdit={handleEdit}
                   handleDelete={() => handleTaskDelete(task.id, column.id)}
                   handleDuplicate={() => handleDuplicate(task.id, column.id)}
+                  isSelected={
+                    selectedTaskIds ? !!selectedTaskIds[task.id] : false
+                  }
+                  onSelectChange={toggleSelect}
                 />
                 {targetIndex !== tasks.length &&
                   ((hoverIndex === index &&

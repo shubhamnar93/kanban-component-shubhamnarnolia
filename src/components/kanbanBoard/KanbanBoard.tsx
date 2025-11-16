@@ -40,11 +40,11 @@ export const KanbanBoard = ({
     throw new Error("`items` must contain between 3 and 6 elements.");
   }
 
-  function handleTaskDelete(taskId: string, columnId: string) {
+  const handleTaskDelete = (taskId: string, columnId: string) => {
     handleDelete(taskId, columnId, columns, setColumns, tasks, setTasks);
-  }
+  };
 
-  function handleDuplicate(taskId: string, columnId: string) {
+  const handleDuplicate = (taskId: string, columnId: string) => {
     const taskToDuplicate = tasks[taskId];
     if (taskToDuplicate) {
       const newTask: KanbanTask = {
@@ -54,7 +54,14 @@ export const KanbanBoard = ({
       };
       handleSaveNew(newTask, columnId, columns, setColumns, tasks, setTasks);
     }
-  }
+  };
+  const [selectedTaskIds, setSelectedTaskIds] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleSelect = (taskId: string, checked: boolean) => {
+    setSelectedTaskIds((s) => ({ ...s, [taskId]: checked }));
+  };
 
   return (
     <>
@@ -117,6 +124,8 @@ export const KanbanBoard = ({
             }}
             handleTaskDelete={handleTaskDelete}
             handleDuplicate={handleDuplicate}
+            selectedTaskIds={selectedTaskIds}
+            toggleSelect={toggleSelect}
           />
         ))}
       </div>

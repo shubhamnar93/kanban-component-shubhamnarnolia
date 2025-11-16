@@ -21,6 +21,8 @@ interface Props {
   handleEdit: (taskId: string) => void;
   handleDelete: (taskId: string) => void;
   handleDuplicate: (taskId: string) => void;
+  isSelected: boolean;
+  onSelectChange: (taskId: string, checked: boolean) => void;
 }
 
 export const KanbanCard = ({
@@ -35,6 +37,8 @@ export const KanbanCard = ({
   handleEdit,
   handleDelete,
   handleDuplicate,
+  isSelected,
+  onSelectChange,
 }: Props) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const isFocused = focusedTaskId === task.id;
@@ -67,15 +71,26 @@ export const KanbanCard = ({
         task.priority || null,
       )} ${isDragging && "shadow-2xl"} ${
         isFocused && isKeyboardDragging && "ring-2 ring-blue-500"
-      } rounded-lg p-3
-      ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2 ${
+      } rounded-lg p-3 ltr border-s-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mt-2 ${
         isDragging && "shadow-2xl scale-[1.03] rotate-2 opacity-70 z-50 "
-      }`}
+      } ${isSelected ? "bg-blue-50 ring-2 ring-blue-200" : ""}`}
     >
       <div className="flex items-start justify-between mb-2">
-        <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">
-          {task.title}
-        </h4>
+        <div className="flex">
+          <label className="mr-1">
+            <input
+              type="checkbox"
+              checked={!!isSelected}
+              onChange={(e) => onSelectChange(task.id, e.target.checked)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="w-4 h-4"
+              aria-label={`Select ${task.title}`}
+            />
+          </label>
+          <h4 className="font-medium text-sm text-neutral-900 line-clamp-2">
+            {task.title}
+          </h4>
+        </div>
         <div className="flex items-center gap-2">
           {task.priority && (
             <span
@@ -125,7 +140,7 @@ items-center justify-center"
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex gap-1">
         <button
           onMouseDown={(e) => e.stopPropagation()}
-          onClick={() =>handleEdit(task.id)}
+          onClick={() => handleEdit(task.id)}
           aria-label={`Edit ${task.title}`}
           className="p-1 rounded-full bg-white/80 hover:bg-white text-sm shadow-sm"
         >

@@ -1,13 +1,15 @@
 import { useState } from "react";
 import "../../styles/globals.css";
-import type { KanbanBoardProps } from "./KanbanBoard.types";
+import type { KanbanBoardProps, KanbanTask } from "./KanbanBoard.types";
 import { KanbanColumnComponent } from "./KanbanColumn";
 import { useDragAndDrop } from "../../hooks/useDragAndDrop";
 import { handleTaskMove, handleUpdate } from "../../utils/task.utils";
 import { handleGlobalKeyDown } from "../../hooks/useKanbanBoard";
 import { TaskModal } from "./TaskModal";
-import {handleDelete} from "../../utils/task.utils";
-import {handleSaveNew} from "../../utils/task.utils";
+import { handleDelete } from "../../utils/task.utils";
+import { handleSaveNew } from "../../utils/task.utils";
+import { Modal } from "../primitives/Modal";
+import { handleColRename, handleWipLimit } from "../../utils/column.utils";
 
 export const KanbanBoard = ({
   columns: initialColumns,
@@ -23,6 +25,11 @@ export const KanbanBoard = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [addNewOrEdit, setAddNewOrEdit] = useState<"add" | "edit">("add");
   const [taskToEdit, setTaskToEdit] = useState<string | null>(null);
+  const [columnId, setColumnId] = useState<string | null>(null);
+  const [showColModal, setShowColModal] = useState<
+    "rename" | "wiplimit" | null
+  >(null);
+  const [colToEdit, setColumnToEdit] = useState<string | null>(null);
 
   if (columns.length < 3 || columns.length > 6) {
     throw new Error("`items` must contain between 3 and 6 elements.");
@@ -77,19 +84,63 @@ export const KanbanBoard = ({
             dragState={dragState}
             setAddNewOrEdit={setAddNewOrEdit}
             setTaskToEdit={setTaskToEdit}
+            setColumnId={setColumnId}
+            setShowColModal={setShowColModal}
+            setColToEdit={setColumnToEdit}
           />
         ))}
       </div>
       {showAddModal && (
         <TaskModal
-        task={taskToEdit ? tasks[taskToEdit] : null}
-          onDelete={handleDelete}
-          onSave={(formData)=>handleSaveNew(formData)}
-          onUpdate={(taskId, formData)=>handleUpdate(taskId, formData)}
+          task={taskToEdit ? tasks[taskToEdit] : null}
+          onDelete={(taskId) => {
+            if (!columnId) return;
+            handleDelete(
+              taskId,
+              columnId,
+              columns,
+              setColumns,
+              tasks,
+              setTasks,
+            );
+            onTaskDelete(taskId);
+            setShowAddModal(false);
+          }}
+          onSave={(formData) => {
+            if (columnId) {
+              const task = handleSaveNew(
+                formData,
+                columnId,
+                columns,
+                setColumns,
+                tasks,
+                setTasks,
+              );
+              if (!task) return null;
+              onTaskCreate(columnId, task as KanbanTask);
+              setShowAddModal(false);
+            }
+          }}
+          onUpdate={(taskId, formData) => {
+            handleUpdate(taskId, formData, tasks, setTasks);
+            onTaskUpdate(taskId, formData);
+            setShowAddModal(false);
+          }}
           columns={columns}
           addNewOrEdit={addNewOrEdit}
           onClose={() => {
-            setShowAddModal(false)}}
+            setShowAddModal(false);
+          }}
+        />
+      )}
+      {showColModal !== null && (
+        <Modal
+          showColModal={showColModal}
+          onWipLimit={(limit) => handleWipLimit({ limit, columnId: colToEdit })}
+          onRename={(colName) =>
+            handleColRename({ colName, columnId: colToEdit })
+          }
+          onClose={() => setShowColModal(null)}
         />
       )}
     </>

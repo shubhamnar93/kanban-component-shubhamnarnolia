@@ -99,51 +99,30 @@ export const TaskModal = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status
-                </label>
-                <select
-                  value={formData.status || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {columns.map((col) => (
-                    <option key={col.id} value={col.id}>
-                      {col.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priority
-                </label>
-                <select
-                  value={formData.priority || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      priority: e.target.value as
-                        | "low"
-                        | "medium"
-                        | "high"
-                        | "urgent",
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">None</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Priority
+              </label>
+              <select
+                value={formData.priority || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    priority: e.target.value as
+                      | "low"
+                      | "medium"
+                      | "high"
+                      | "urgent",
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">None</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -241,7 +220,7 @@ export const TaskModal = ({
                 className="flex-1"
                 ariaLabel="Save changes to task"
               >
-                {addNewOrEdit==="add"? "Save Changes" : "Update Task"}
+                {addNewOrEdit === "add" ? "Save Changes" : "Update Task"}
               </Button>
               {addNewOrEdit === "edit" && task && (
                 <Button
@@ -255,9 +234,9 @@ export const TaskModal = ({
                 </Button>
               )}
               <Button
-                onClick={()=>{
+                onClick={() => {
                   setFormData({});
-                  onClose()
+                  onClose();
                 }}
                 variant="secondary"
                 ariaLabel="Cancel editing"

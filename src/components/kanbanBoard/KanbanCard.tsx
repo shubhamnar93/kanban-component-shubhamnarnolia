@@ -120,7 +120,9 @@ items-center justify-center"
       )}
       <button
         onMouseDown={(e) => e.stopPropagation()}
-        onClick={() => handleEdit(task.id)}
+        onClick={() => {
+          handleEdit(task.id);
+        }}
         aria-label={`Edit ${task.title}`}
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full bg-white/80 hover:bg-white"
       >

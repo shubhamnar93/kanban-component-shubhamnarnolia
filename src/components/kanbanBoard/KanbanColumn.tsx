@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import type { KanbanColumn, KanbanTask } from "./KanbanBoard.types";
 import { KanbanCard } from "./KanbanCard";
 import {
+  handleColDelete,
   handleDragLeaveColumn,
   handleDragOverColumn,
   handleDropColumn,
@@ -38,6 +39,11 @@ interface Props {
   setShowAddModal: React.Dispatch<React.SetStateAction<boolean>>;
   setAddNewOrEdit: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   setTaskToEdit: React.Dispatch<React.SetStateAction<string | null>>;
+  setColumnId: React.Dispatch<React.SetStateAction<string | null>>;
+  setShowColModal: React.Dispatch<
+    React.SetStateAction<"rename" | "wiplimit" | null>
+  >;
+  setColToEdit: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const KanbanColumnComponent = ({
@@ -48,6 +54,9 @@ export const KanbanColumnComponent = ({
   setShowAddModal,
   setAddNewOrEdit,
   setTaskToEdit,
+  setColumnId,
+  setShowColModal,
+  setColToEdit,
 }: Props) => {
   const {
     draggedTaskId,
@@ -70,8 +79,10 @@ export const KanbanColumnComponent = ({
     null,
   );
   const [isExpand, setIsExpand] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+
   function handleEdit(taskId: string) {
-    // Placeholder function for editing a task
+    setColumnId(column.id);
     setShowAddModal(true);
     setAddNewOrEdit("edit");
     setTaskToEdit(taskId);
@@ -126,7 +137,55 @@ export const KanbanColumnComponent = ({
         className="flex justify-between items-center mb-3 sticky top-0 bg-gray-300"
       >
         <h3 className="font-semibold">{column.title}</h3>
-        <span className="text-sm text-neutral-500">{tasks.length}</span>
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu((prev) => !prev);
+            }}
+            className="p-1 rounded hover:bg-gray-200"
+          >
+            ⋯
+          </button>
+
+          {showMenu && (
+            <div
+              className="absolute right-0 mt-2 w-40 bg-white rounded shadow-md border z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => {
+                  setColToEdit(column.id);
+                  setShowColModal("rename");
+                }}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+              >
+                Rename Column
+              </button>
+              <button
+                onClick={() => setIsExpand((prev) => !prev)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+              >
+                {!isExpand ? "Expand Column" : "Collapse Column"}
+              </button>
+              <button
+                onClick={() => {
+                  setColToEdit(column.id);
+                  setShowColModal("wiplimit");
+                }}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+              >
+                Set WIP Limit
+              </button>
+              <button
+                onClick={() => handleColDelete(column.id)}
+                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+              >
+                Delete Column
+              </button>
+            </div>
+          )}
+        </div>
       </header>
       <div className="flex flex-col overflow-y-auto scrollbar-thin">
         {(hoverIndex === 0 ||
@@ -137,7 +196,7 @@ export const KanbanColumnComponent = ({
             <div className="w-full h-2 bg-blue-300 rounded mt-2"></div>
           )}
 
-        {!isExpand ? (
+        {!isExpand || showMenu ? (
           <div></div>
         ) : tasks.length === 0 ? (
           <div className="text-sm text-black italic py-6 text-center">
@@ -211,8 +270,10 @@ export const KanbanColumnComponent = ({
       </div>
       <Button
         onClick={() => {
+          setColumnId(column.id);
           setAddNewOrEdit("add");
-          setShowAddModal(true)}}
+          setShowAddModal(true);
+        }}
         variant="ghost"
         className="w-full mt-3 text-xs sm:text-sm border border-gray-200 hover:border-gray-300"
         ariaLabel={`Add task to ${column.title} column`}

@@ -2,6 +2,7 @@ import type {
   KanbanColumn,
   KanbanTask,
 } from "../components/kanbanBoard/KanbanBoard.types";
+import { v4 as uuidv4 } from "uuid";
 
 interface HandleKeyDownParams {
   e: React.KeyboardEvent;
@@ -132,20 +133,93 @@ export const handleTaskMove = (
 
 /**
  * Pick the task and drop using keyboard
-*/
-export const handleKeyDown = ({e, handleKeyboardPickUp, taskId, columnId, isKeyboardDragging, handleKeyboardDrop}: HandleKeyDownParams) => {
-    if (e.key === " ") {
-      e.preventDefault();
-      handleKeyboardPickUp(taskId, columnId);
-    } else if (e.key === "Enter" && isKeyboardDragging) {
-      e.preventDefault();
-      handleKeyboardDrop();
-    }
-  };
-/**
- * Pick the task and drop using keyboard
-*/
-export const handleDelete=(taskId:string)=>{}
-export const handleSaveNew=(formData:Partial<KanbanTask>)=>{}
-export const handleUpdate=(taskId:string, formData:Partial<KanbanTask>)=>{}
+ */
+export const handleKeyDown = ({
+  e,
+  handleKeyboardPickUp,
+  taskId,
+  columnId,
+  isKeyboardDragging,
+  handleKeyboardDrop,
+}: HandleKeyDownParams) => {
+  if (e.key === " ") {
+    e.preventDefault();
+    handleKeyboardPickUp(taskId, columnId);
+  } else if (e.key === "Enter" && isKeyboardDragging) {
+    e.preventDefault();
+    handleKeyboardDrop();
+  }
+};
 
+/**
+ * delete task
+ */
+export const handleDelete = (
+  taskId: string,
+  columnId: string,
+  columns: KanbanColumn[],
+  setColumns: React.Dispatch<React.SetStateAction<KanbanColumn[]>>,
+  tasks: { [key: string]: KanbanTask },
+  setTasks: React.Dispatch<React.SetStateAction<{ [key: string]: KanbanTask }>>,
+) => {
+  const col = columns.find((c) => c.id === columnId)!;
+  const newTasks = Object.fromEntries(
+    Object.entries(tasks).filter(([key, value]) => key !== taskId),
+  );
+  col.taskIds = col.taskIds.filter((t) => t !== taskId);
+  console.log(col.taskIds);
+  const cols = columns.map((c) => {
+    if (c.id === columnId) return col;
+    else return c;
+  });
+  console.log(cols);
+  setColumns(cols);
+  setTasks(newTasks);
+};
+
+/**
+ * save new task
+ */
+export const handleSaveNew = (
+  formData: Partial<KanbanTask>,
+  columnId: string,
+  columns: KanbanColumn[],
+  setColumns: React.Dispatch<React.SetStateAction<KanbanColumn[]>>,
+  tasks: { [key: string]: KanbanTask },
+  setTasks: React.Dispatch<React.SetStateAction<{ [key: string]: KanbanTask }>>,
+) => {
+  const col = columns.find((c) => c.id === columnId)!;
+  console.log("col");
+  console.log("formdata is right");
+  const task = {
+    ...formData,
+    id: uuidv4(),
+    createdAt: new Date(),
+    status: col.title,
+  };
+  if (!task.id || !task.createdAt) return null;
+  console.log("i think  task is right");
+  console.log(task);
+  col.taskIds.push(task.id);
+  const cols = columns.map((c) => {
+    if (c.id === columnId) return col;
+    else return c;
+  });
+  setColumns(cols);
+  setTasks({ ...tasks, [task.id]: task as KanbanTask });
+  return task;
+};
+
+/**
+ * update old task
+ */
+export const handleUpdate = (
+  taskId: string,
+  formData: Partial<KanbanTask>,
+  tasks: { [key: string]: KanbanTask },
+  setTasks: React.Dispatch<React.SetStateAction<{ [key: string]: KanbanTask }>>,
+) => {
+  const t = tasks;
+  t[taskId] = { ...t[taskId], ...formData };
+  setTasks(t);
+};

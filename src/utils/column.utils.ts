@@ -45,6 +45,15 @@ export interface HandleDragOverColumnParams extends ColumnInteractionBase {
   draggedTaskIndex: React.RefObject<number | null>;
 }
 
+export interface HandleWipLimitParams {
+  limit: number;
+  columnId: string | null;
+}
+
+export interface HandleColRenameParams {
+  colName: string;
+  columnId: string | null;
+}
 export const handleDragOverColumn = ({
   e,
   setIsOverColumn,
@@ -112,3 +121,11 @@ export const handleDropColumn = ({
   const newIndex = targetIndex !== null ? targetIndex : tasksLength;
   handleTaskMove(draggedTaskId, sourceColumnId, columnId, newIndex);
 };
+
+export const handleWipLimit = ({ limit, columnId }: HandleWipLimitParams) => {};
+export const handleColRename = ({
+  colName,
+  columnId,
+}: HandleColRenameParams) => {};
+export const handleColDelete = (columnId: string) => {};
+

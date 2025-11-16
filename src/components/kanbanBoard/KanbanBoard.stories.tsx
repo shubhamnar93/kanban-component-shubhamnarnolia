@@ -16,7 +16,6 @@ const columns: KanbanColumn[] = [
     taskIds: [
       "1",
       "2",
-      "3",
       "4",
       "5",
       "6",
@@ -45,7 +44,6 @@ const columns: KanbanColumn[] = [
     taskIds: [
       "1",
       "2",
-      "3",
       "4",
       "5",
       "6",
@@ -65,7 +63,7 @@ const columns: KanbanColumn[] = [
       "20",
     ],
   },
-  { id: "5", title: "In Progress", color: "bg-yellow-500", taskIds: ["3"] },
+  { id: "5", title: "In Progress", color: "bg-yellow-500", taskIds: [] },
   { id: "6", title: "Done", color: "bg-green-500", taskIds: [] },
 ];
 

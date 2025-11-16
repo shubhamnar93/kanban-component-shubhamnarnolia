@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/globals.css";
 import type { KanbanBoardProps, KanbanTask } from "./KanbanBoard.types";
 import { KanbanColumnComponent } from "./KanbanColumn";
@@ -63,8 +63,108 @@ export const KanbanBoard = ({
     setSelectedTaskIds((s) => ({ ...s, [taskId]: checked }));
   };
 
+  const [filterAssignee, setFilterAssignee] = useState<string | null>(null);
+  const [filterTag, setFilterTag] = useState<string | null>(null);
+  const [filterPriority, setFilterPriority] = useState<string | null>(null);
+  useEffect(() => {
+    let newTask = Object.fromEntries(
+      Object.entries(initialTasks).filter(([key, task]) => {
+        const byAssignee = !filterAssignee || task.assignee === filterAssignee;
+
+        const byTag = !filterTag || task.tags?.includes(filterTag);
+
+        const byPriority = !filterPriority || task.priority === filterPriority;
+
+        return byAssignee && byTag && byPriority;
+      }),
+    );
+    const newColumns = initialColumns.map((col) => ({
+      ...col, // ← Create a new object
+      taskIds: col.taskIds.filter((id) => newTask[id] !== undefined),
+    }));
+    setTasks(newTask);
+    setColumns(newColumns);
+  }, [filterPriority, filterTag, filterAssignee]);
+
+  const massDeleteSelected = () => {
+    const ids = Object.keys(selectedTaskIds).filter(
+      (id) => selectedTaskIds[id],
+    );
+    if (ids.length === 0) return;
+    ids.forEach((id) => {
+      // find containing column
+      const col = columns.find((c) => c.taskIds.includes(id));
+      if (!col) return;
+      handleDelete(id, col.id, columns, setColumns, tasks, setTasks);
+      onTaskDelete(id);
+    });
+    setSelectedTaskIds({});
+  };
+
   return (
     <>
+      <div className="flex flex-col gap-2 justify-between md:flex-row mb-3">
+        <div className="flex gap-2">
+          <select
+            value={filterAssignee ?? ""}
+            onChange={(e) => setFilterAssignee(e.target.value || null)}
+            className="px-2 py-1 border rounded"
+          >
+            <option value="">All assignees</option>
+            {Array.from(
+              new Set(
+                Object.values(tasks)
+                  .map((t) => t.assignee)
+                  .filter(Boolean),
+              ),
+            ).map((a) => (
+              <option key={a} value={a as string}>
+                {a}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterTag ?? ""}
+            onChange={(e) => setFilterTag(e.target.value || null)}
+            className="px-2 py-1 border rounded"
+          >
+            <option value="">All tags</option>
+            {Array.from(
+              new Set(Object.values(tasks).flatMap((t) => t.tags ?? [])),
+            ).map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterPriority ?? ""}
+            onChange={(e) => setFilterPriority(e.target.value || null)}
+            className="px-2 py-1 border rounded"
+          >
+            <option value="">All priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+
+        <div className=" flex gap-2">
+          <button
+            onClick={massDeleteSelected}
+            className="px-3 py-1 bg-red-600 text-white rounded"
+          >
+            Delete selected
+          </button>
+          <button
+            onClick={() => setSelectedTaskIds({})}
+            className="px-3 py-1 border rounded"
+          >
+            Clear selection
+          </button>
+        </div>
+      </div>
       <div
         tabIndex={0}
         onKeyDown={(e) =>

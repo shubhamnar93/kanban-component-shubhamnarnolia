@@ -152,7 +152,7 @@ export const KanbanColumnComponent = ({
         isOverColumn || (isKeyboardDragging && targetColumnId === column.id)
           ? "border border-blue-500"
           : ""
-      } ${isApproachingWip ? "border-2 border-amber-300" : ""} ${isAtOrOverWip ? "ring-2 ring-red-400" : ""} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[500px] sm:w-full md:w-[280px] lg:max-h-[823px] lg:w-[320px] h-fit`}
+      } ${isApproachingWip ? "border-2 border-amber-300" : ""} ${isAtOrOverWip ? "ring-2 ring-red-400" : ""} scroll-thin rounded-xl p-3 flex flex-col w-full max-h-[400px] sm:w-full md:w-[280px] lg:max-h-[723px] lg:w-[320px] h-fit`}
     >
       <header
         onClick={() => setIsExpand((prev) => !prev)}

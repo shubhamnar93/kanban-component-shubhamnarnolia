@@ -167,12 +167,10 @@ export const handleDelete = (
     Object.entries(tasks).filter(([key, value]) => key !== taskId),
   );
   col.taskIds = col.taskIds.filter((t) => t !== taskId);
-  console.log(col.taskIds);
   const cols = columns.map((c) => {
     if (c.id === columnId) return col;
     else return c;
   });
-  console.log(cols);
   setColumns(cols);
   setTasks(newTasks);
 };
@@ -189,8 +187,6 @@ export const handleSaveNew = (
   setTasks: React.Dispatch<React.SetStateAction<{ [key: string]: KanbanTask }>>,
 ) => {
   const col = columns.find((c) => c.id === columnId)!;
-  console.log("col");
-  console.log("formdata is right");
   const task = {
     ...formData,
     id: uuidv4(),
@@ -198,8 +194,6 @@ export const handleSaveNew = (
     status: col.title,
   };
   if (!task.id || !task.createdAt) return null;
-  console.log("i think  task is right");
-  console.log(task);
   col.taskIds.push(task.id);
   const cols = columns.map((c) => {
     if (c.id === columnId) return col;

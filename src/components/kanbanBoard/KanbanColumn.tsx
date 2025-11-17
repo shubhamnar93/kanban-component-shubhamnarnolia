@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import type { KanbanColumn, KanbanTask } from "./KanbanBoard.types";
 import { KanbanCard } from "./KanbanCard";
 import {
-  handleColDelete,
   handleDragLeaveColumn,
   handleDragOverColumn,
   handleDropColumn,

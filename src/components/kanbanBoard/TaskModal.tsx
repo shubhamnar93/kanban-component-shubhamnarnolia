@@ -13,7 +13,6 @@ interface TaskModalProps {
 }
 export const TaskModal = ({
   task,
-  columns,
   onClose,
   onUpdate,
   onDelete,

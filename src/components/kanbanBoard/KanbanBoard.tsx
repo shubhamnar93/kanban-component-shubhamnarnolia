@@ -37,7 +37,7 @@ export const KanbanBoard = ({
   const [colToEdit, setColumnToEdit] = useState<string | null>(null);
 
   if (columns.length < 3 || columns.length > 6) {
-    throw new Error("`items` must contain between 3 and 6 elements.");
+    return <div className="text-red-500"> There should be more than 3 columns and less than 6 col</div>;
   }
 
   const handleTaskDelete = (taskId: string, columnId: string) => {
@@ -68,7 +68,7 @@ export const KanbanBoard = ({
   const [filterPriority, setFilterPriority] = useState<string | null>(null);
   useEffect(() => {
     let newTask = Object.fromEntries(
-      Object.entries(initialTasks).filter(([key, task]) => {
+      Object.entries(initialTasks).filter(([,task]) => {
         const byAssignee = !filterAssignee || task.assignee === filterAssignee;
 
         const byTag = !filterTag || task.tags?.includes(filterTag);
